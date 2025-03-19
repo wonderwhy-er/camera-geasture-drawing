@@ -2,6 +2,12 @@
 
 A webcam-based drawing application that uses hand gestures for a natural and intuitive drawing experience.
 
+## Live Demo
+
+Try it out: [Hand Gesture Drawing Live Demo](https://wonderwhy-er.github.io/camera-geasture-drawing/)
+
+> **Note**: You'll need to grant camera permissions to use the application.
+
 ## Overview
 
 This application allows you to draw on your screen using hand gestures captured through your webcam. It uses MediaPipe Hands for real-time hand tracking and gesture recognition.
