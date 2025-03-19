@@ -64,12 +64,13 @@ async function populateCameraOptions() {
     }
     
     // Add all available cameras
-    cameras.forEach(camera => {
+    cameras.forEach((camera, index) => {
         const option = document.createElement('option');
         option.value = camera.deviceId;
         
         // Create a more user-friendly label
-        const label = camera.label || `Camera ${cameraSelect.length + 1}`;
+        // If no label is available (before permission), use a generic name
+        const label = camera.label || `Camera ${index + 1}`;
         option.text = label;
         
         // Check if it's the front-facing camera
@@ -418,12 +419,22 @@ cameraSelect.addEventListener('change', async () => {
     }
 });
 
+// When device permissions change, update camera list
+navigator.mediaDevices.addEventListener('devicechange', async () => {
+    await populateCameraOptions();
+});
+
 // Initialize the application
 async function init() {
     // Request camera permissions and populate dropdown
     try {
-        // First access webcam to trigger permissions prompt
+        // First populate with whatever we can get (might be without labels)
+        await populateCameraOptions();
+        
+        // Now access webcam to trigger permissions prompt
         await navigator.mediaDevices.getUserMedia({ video: true });
+        
+        // After permissions, repopulate with full information
         await populateCameraOptions();
         
         // Setup with selected camera (or default if none selected)
