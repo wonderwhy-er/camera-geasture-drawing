@@ -39,8 +39,14 @@ function setupCanvas() {
 // Get list of available cameras
 async function getCameras() {
     try {
+        // Ensure we have camera permissions first to get complete information
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        
+        // Now get the devices with complete information
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        
+        console.log('Found cameras:', videoDevices);
         return videoDevices;
     } catch (err) {
         console.error('Error getting cameras:', err);
@@ -80,6 +86,12 @@ async function populateCameraOptions() {
         
         cameraSelect.appendChild(option);
     });
+    
+    // Force a change event to ensure the camera is updated if needed
+    if (cameras.length > 0 && !cameraSelect.value) {
+        cameraSelect.selectedIndex = 0;
+        cameraSelect.dispatchEvent(new Event('change'));
+    }
 }
 
 // Initialize webcam
@@ -411,6 +423,7 @@ saveButton.addEventListener('click', saveDrawing);
 
 // Handle camera selection change
 cameraSelect.addEventListener('change', async () => {
+    console.log('Camera selection changed to:', cameraSelect.value);
     const deviceId = cameraSelect.value;
     if (deviceId) {
         // Stop current MediaPipe instance
@@ -428,19 +441,18 @@ navigator.mediaDevices.addEventListener('devicechange', async () => {
 async function init() {
     // Request camera permissions and populate dropdown
     try {
-        // First populate with whatever we can get (might be without labels)
-        await populateCameraOptions();
-        
-        // Now access webcam to trigger permissions prompt
-        await navigator.mediaDevices.getUserMedia({ video: true });
-        
-        // After permissions, repopulate with full information
+        // Populate camera options (this will request permissions)
         await populateCameraOptions();
         
         // Setup with selected camera (or default if none selected)
         const selectedCameraId = cameraSelect.value;
         await setupCamera(selectedCameraId);
         setupHands();
+        
+        // Check for camera changes after a short delay (for devices that might take time to initialize)
+        setTimeout(async () => {
+            await populateCameraOptions();
+        }, 2000);
     } catch (err) {
         console.error('Error initializing:', err);
         alert('Error accessing webcam. Please make sure you have granted camera permission.');
