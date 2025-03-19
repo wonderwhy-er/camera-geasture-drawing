@@ -44,7 +44,14 @@ The brush and eraser sizes dynamically scale based on the apparent size of your 
 
 ## Creation Context
 
-This project was created during a YouTube video with the assistance of Claude AI. It demonstrates how AI can help create interactive web applications that utilize computer vision and gesture recognition technologies.
+This project was created with the assistance of Claude AI during a YouTube livestream. It demonstrates how AI can help create interactive web applications that utilize computer vision and gesture recognition technologies.
+
+### YouTube Video
+Check out the livestream where this project was built from scratch:
+[Building Hand Gesture Drawing App with Claude AI](https://youtu.be/ly3bed99Dy8?t=1401)
+
+### MCP Project
+This application was built using [Claude Computer Commander (MCP)](https://github.com/wonderwhy-er/ClaudeComputerCommander), a tool that enables Claude to control a computer and write code.
 
 ## License
 
