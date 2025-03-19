@@ -3,8 +3,12 @@ const video = document.getElementById('webcam');
 const drawingCanvas = document.getElementById('drawing-canvas');
 const handsCanvas = document.getElementById('hands-canvas');
 const colorPicker = document.getElementById('color-picker');
+const cameraSelect = document.getElementById('camera-select');
 const clearButton = document.getElementById('clear-button');
 const saveButton = document.getElementById('save-button');
+
+// Track current media stream to stop it when switching cameras
+let currentStream = null;
 
 // Canvas contexts
 const drawingCtx = drawingCanvas.getContext('2d');
@@ -32,19 +36,77 @@ function setupCanvas() {
     handsCanvas.height = video.videoHeight || window.innerHeight;
 }
 
+// Get list of available cameras
+async function getCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        return videoDevices;
+    } catch (err) {
+        console.error('Error getting cameras:', err);
+        return [];
+    }
+}
+
+// Populate camera select dropdown
+async function populateCameraOptions() {
+    const cameras = await getCameras();
+    
+    // Clear existing options
+    cameraSelect.innerHTML = '';
+    
+    if (cameras.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.text = 'No cameras found';
+        cameraSelect.appendChild(option);
+        return;
+    }
+    
+    // Add all available cameras
+    cameras.forEach(camera => {
+        const option = document.createElement('option');
+        option.value = camera.deviceId;
+        
+        // Create a more user-friendly label
+        const label = camera.label || `Camera ${cameraSelect.length + 1}`;
+        option.text = label;
+        
+        // Check if it's the front-facing camera
+        if (label.toLowerCase().includes('front')) {
+            option.selected = true;
+        }
+        
+        cameraSelect.appendChild(option);
+    });
+}
+
 // Initialize webcam
-async function setupCamera() {
+async function setupCamera(deviceId = null) {
+    // Stop any existing stream
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Set up constraints based on selected camera
     const constraints = {
         video: {
             width: { ideal: 1920 },
-            height: { ideal: 1080 },
-            facingMode: 'user'
+            height: { ideal: 1080 }
         }
     };
+    
+    // If deviceId is provided, use it
+    if (deviceId) {
+        constraints.video.deviceId = { exact: deviceId };
+    } else {
+        constraints.video.facingMode = 'user'; // Default to front camera
+    }
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
+        currentStream = stream;
         
         return new Promise((resolve) => {
             video.onloadedmetadata = () => {
@@ -58,8 +120,16 @@ async function setupCamera() {
     }
 }
 
+// MediaPipe camera controller
+let cameraController = null;
+
 // Initialize MediaPipe Hands
 function setupHands() {
+    // If there's an existing camera controller, stop it
+    if (cameraController) {
+        cameraController.stop();
+    }
+    
     const hands = new Hands({
         locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -76,7 +146,7 @@ function setupHands() {
     hands.onResults(onHandResults);
 
     // Start camera and detect hands
-    const camera = new Camera(video, {
+    cameraController = new Camera(video, {
         onFrame: async () => {
             await hands.send({ image: video });
         },
@@ -84,7 +154,7 @@ function setupHands() {
         height: 720
     });
 
-    camera.start();
+    cameraController.start();
 }
 
 // Calculate palm size and depth
@@ -338,10 +408,32 @@ window.addEventListener('resize', setupCanvas);
 clearButton.addEventListener('click', clearCanvas);
 saveButton.addEventListener('click', saveDrawing);
 
+// Handle camera selection change
+cameraSelect.addEventListener('change', async () => {
+    const deviceId = cameraSelect.value;
+    if (deviceId) {
+        // Stop current MediaPipe instance
+        await setupCamera(deviceId);
+        setupHands();
+    }
+});
+
 // Initialize the application
 async function init() {
-    await setupCamera();
-    setupHands();
+    // Request camera permissions and populate dropdown
+    try {
+        // First access webcam to trigger permissions prompt
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        await populateCameraOptions();
+        
+        // Setup with selected camera (or default if none selected)
+        const selectedCameraId = cameraSelect.value;
+        await setupCamera(selectedCameraId);
+        setupHands();
+    } catch (err) {
+        console.error('Error initializing:', err);
+        alert('Error accessing webcam. Please make sure you have granted camera permission.');
+    }
 }
 
 // Start everything when the page is loaded
