@@ -4,6 +4,8 @@ A webcam-based drawing application that uses hand gestures for a natural and int
 
 ![Hand Gesture Drawing Demo](picture.png)
 
+=======
+
 ## Live Demo
 
 Try it out: [Hand Gesture Drawing Live Demo](https://wonderwhy-er.github.io/camera-geasture-drawing/)
