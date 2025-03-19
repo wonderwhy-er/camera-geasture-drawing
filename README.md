@@ -9,7 +9,7 @@ A webcam-based drawing application that uses hand gestures for a natural and int
 This project was created with the assistance of Claude AI during a YouTube livestream. It demonstrates how AI can help create interactive web applications that utilize computer vision and gesture recognition technologies.
 
 ### YouTube Video
-Check out the livestream where this project was built from scratch:
+Check out the YouTube video where this project was built from scratch with Claude and MCP:
 [Building Hand Gesture Drawing App with Claude AI](https://youtu.be/ly3bed99Dy8?t=1401)
 
 ### MCP Project
