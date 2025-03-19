@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture Drawing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="video-container">
+            <video id="webcam" autoplay playsinline></video>
+            <canvas id="drawing-canvas"></canvas>
+            <canvas id="hands-canvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="color-picker">Color:</label>
+                <input type="color" id="color-picker" value="#FF0000">
+            </div>
+            
+=======
+            
+            <button id="clear-button">Clear Canvas</button>
+            <button id="save-button">Save Drawing</button>
+            
+            <div class="gesture-help">
+                <h3>Gesture Guide:</h3>
+                <ul>
+                    <li>✋ Open Hand: Erase (palm acts as an eraser)</li>
+                    <li>👆 Index Finger: Draw (size changes with distance)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+</body>
+</html>
